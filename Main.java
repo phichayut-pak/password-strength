@@ -19,6 +19,7 @@ class Main {
         while (true) {
             System.out.print("Please insert your password ( type 'exit' to quit ): ");
             password = s.nextLine();
+            System.out.print("\n");
 
             if (password.toLowerCase().equals("exit")) {
                 break;
