@@ -160,6 +160,35 @@ public class PasswordStrength {
         return count;
     }
 
+    public boolean checkBirthday(String password) {
+        String currentString = "";
+        boolean isAllNumber = false;
+
+        for (int i = 0; i < password.length(); i++) {
+            if (inRange(password.charAt(i), 48, 57)) {
+                currentString = password.substring(i, i + 5);
+                System.out.println(currentString);
+
+                for (int j = 0; j < currentString.length(); j++) {
+                    if (!inRange(password.charAt(i), 48, 57)) {
+                        System.out.println(password.charAt(i));
+                        break;
+                    }
+
+                    if (j == currentString.length() - 1) {
+                        isAllNumber = true;
+                    }
+                }
+            }
+
+            if (isAllNumber) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void calcComplexity() {
         this.score = this.baseScore +
                 this.excess * this.bonusExcess +

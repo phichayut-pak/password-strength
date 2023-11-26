@@ -25,7 +25,7 @@ class Main {
             }
 
             PasswordStrength user = new PasswordStrength(password);
-            System.out.println(user);
+            System.out.println(user.checkBirthday(password));
 
         }
 
