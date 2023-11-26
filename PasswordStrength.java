@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
 public class PasswordStrength {
     private int baseScore = 0;
     private int score = 0;
@@ -9,6 +13,7 @@ public class PasswordStrength {
     private int symbol = 0; // !,@,#,$,%,^,&,*,?,_,~
     private int excess = 0; // excess characters after subtracting with minPasswordLength
     private int uniqueChars = 0;
+    private int commonWords = 0;
 
     private int bonusExcess = 3;
     private int bonusUpper = 4;
@@ -19,15 +24,17 @@ public class PasswordStrength {
     private int bonusOnlyNumber = 0;
     private int bonusUniqueChars = 0;
     private int bonusRepetition = 0;
+    private int bonusCommonWords = -5;
 
     public PasswordStrength(String password) {
         if (password.length() >= minPasswordLength) {
             this.baseScore = 50;
-            this.analyzeString(password);
-            this.calcComplexity();
         } else {
             this.baseScore = 0;
         }
+
+        this.analyzeString(password);
+        this.calcComplexity();
     }
 
     private boolean inRange(char c, int min, int max) {
@@ -89,6 +96,9 @@ public class PasswordStrength {
         } else if (this.uniqueChars >= 3 && this.uniqueChars < 6) {
             this.bonusUniqueChars = -5 * (36 - this.uniqueChars * this.uniqueChars);
         }
+
+        this.commonWords = checkCommon(password);
+
     }
 
     // checks if there are more than or equal to 3 repeated characters in a password
@@ -132,6 +142,24 @@ public class PasswordStrength {
 
     }
 
+    public int checkCommon(String password) {
+        File passList = new File("common_words.txt");
+        int count = 0;
+
+        try (Scanner x = new Scanner(passList)) {
+            x.useDelimiter(" ");
+            while (x.hasNext()) {
+                if (password.contains(x.next())) {
+                    count++;
+                }
+            }
+        } catch (IOException mem) {
+            mem.printStackTrace();
+        }
+
+        return count;
+    }
+
     private void calcComplexity() {
         this.score = this.baseScore +
                 this.excess * this.bonusExcess +
@@ -142,7 +170,8 @@ public class PasswordStrength {
                 this.bonusOnlyLower +
                 this.bonusOnlyNumber +
                 this.bonusRepetition +
-                this.bonusUniqueChars;
+                this.bonusUniqueChars +
+                this.commonWords * this.bonusCommonWords;
     }
 
     public String toString() {
@@ -159,6 +188,7 @@ public class PasswordStrength {
         } else if (score >= 100) {
             message = "Secure!";
         }
+
         return ("The Password is " + message + "\n" +
                 "=================================" + "\n" +
                 "Score Breakdown" + "\n" +
@@ -175,6 +205,8 @@ public class PasswordStrength {
                 "Lower case only penalty: " + this.bonusOnlyLower + "\n" +
                 "Numbers only penalty: " + this.bonusOnlyNumber + "\n" +
                 "Repeating pattern only penalty: " + this.bonusRepetition + "\n" +
+                "Common words penalty: " + (this.commonWords * this.bonusCommonWords) + "[" + this.commonWords + " x "
+                + this.bonusCommonWords + "]" + "\n" +
                 "Total Score: " + this.score);
     }
 }
