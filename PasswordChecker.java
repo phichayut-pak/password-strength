@@ -12,10 +12,13 @@ public class PasswordChecker {
         this.password = password;
     }
 
-    public int checkLength() {
-        return password.length();
+    // check if password is longer than or equal to 16 characters
+    public boolean checkLength() {
+        return password.length() >= 16;
     }
 
+    // check if password is a combination of integer, upper alphabet, lower
+    // alphabet, and any special characters
     public boolean checkCombination() {
         int countInteger = 0;
         int countUpper = 0;
@@ -24,16 +27,16 @@ public class PasswordChecker {
 
         for (int i = 0; i < password.length(); i++) {
 
-            if (checkRange(password.charAt(i), 33, 126)) {
-                if (password.charAt(i) >= 97 && password.charAt(i) <= 122) {
+            if (inRange(password.charAt(i), 33, 126)) {
+                if (inRange(password.charAt(i), 97, 122)) {
                     countLower++;
                 }
 
-                else if (password.charAt(i) >= 65 && password.charAt(i) <= 90) {
+                else if (inRange(password.charAt(i), 65, 90)) {
                     countUpper++;
                 }
 
-                else if (password.charAt(i) >= 48 && password.charAt(i) <= 57) {
+                else if (inRange(password.charAt(i), 48, 57)) {
                     countInteger++;
                 }
 
@@ -47,10 +50,12 @@ public class PasswordChecker {
 
     }
 
-    private boolean checkRange(char c, int min, int max) {
+    private boolean inRange(char c, int min, int max) {
         return (c >= min && c <= max);
     }
 
+    // check the consecutive letters if the next character is the same with the
+    // current one
     public boolean checkConsecutive() {
 
         if (this.password.length() <= 1) {
@@ -70,6 +75,7 @@ public class PasswordChecker {
         return false;
     }
 
+    // check if there is any common word
     public boolean checkCommon() {
         File passList = new File("common_words.txt");
         boolean match = false;
