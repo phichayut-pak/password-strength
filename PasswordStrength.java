@@ -8,11 +8,7 @@ public class PasswordStrength {
     private int number = 0; // 0-9
     private int symbol = 0; // !,@,#,$,%,^,&,*,?,_,~
     private int excess = 0; // excess characters after subtracting with minPasswordLength
-
-    private int onlyLower = 0;
-    private int onlyNumber = 0;
-    // private int uniqueChars = 0;
-    private int repetition = 0;
+    private int uniqueChars = 0;
 
     private int bonusExcess = 3;
     private int bonusUpper = 4;
@@ -21,7 +17,7 @@ public class PasswordStrength {
     private int bonusCombo = 0;
     private int bonusOnlyLower = 0;
     private int bonusOnlyNumber = 0;
-    // private int bonusUniqueChars = 0;
+    private int bonusUniqueChars = 0;
     private int bonusRepetition = 0;
 
     public PasswordStrength(String password) {
@@ -73,17 +69,25 @@ public class PasswordStrength {
         }
 
         if (this.upper == 0 && this.lower >= 1 && this.number == 0 && this.symbol == 0) {
-            this.onlyLower = -15;
+            this.bonusOnlyLower = -15;
         }
 
         if (this.upper == 0 && this.lower == 0 && this.number >= 1 && this.symbol == 0) {
-            this.onlyNumber = -15;
+            this.bonusOnlyNumber = -15;
         }
 
         if (checkRepetition(password)) {
             this.bonusRepetition = -50;
         } else {
             this.bonusRepetition = 0;
+        }
+
+        this.uniqueChars = checkUniqueChars(password);
+
+        if (this.uniqueChars <= 3) {
+            this.bonusUniqueChars = -10;
+        } else if (this.uniqueChars >= 3 && this.uniqueChars < 6) {
+            this.bonusUniqueChars = -5 * (36 - this.uniqueChars * this.uniqueChars);
         }
     }
 
@@ -110,6 +114,24 @@ public class PasswordStrength {
         return false;
     }
 
+    public int checkUniqueChars(String password) {
+        String lowerPassword = password.toLowerCase();
+
+        for (int i = 0; i < lowerPassword.length(); i++) {
+            char currentChar = lowerPassword.charAt(i);
+
+            for (int j = i + 1; j < lowerPassword.length(); j++) {
+                if (lowerPassword.charAt(j) == currentChar) {
+                    lowerPassword = lowerPassword.substring(0, j) + lowerPassword.substring(j + 1);
+                }
+            }
+
+        }
+
+        return lowerPassword.length();
+
+    }
+
     private void calcComplexity() {
         this.score = this.baseScore +
                 this.excess * this.bonusExcess +
@@ -119,7 +141,8 @@ public class PasswordStrength {
                 this.bonusCombo +
                 this.bonusOnlyLower +
                 this.bonusOnlyNumber +
-                this.bonusRepetition;
+                this.bonusRepetition +
+                this.bonusUniqueChars;
     }
 
     public String toString() {
@@ -136,6 +159,22 @@ public class PasswordStrength {
         } else if (score >= 100) {
             message = "Secure!";
         }
-        return ("The Password is " + message);
+        return ("The Password is " + message + "\n" +
+                "=================================" + "\n" +
+                "Score Breakdown" + "\n" +
+                "Base Score: " + this.baseScore + "\n" +
+                "Length Bonus: " + (this.excess * this.bonusExcess) + "[" + this.excess + " x " + this.bonusExcess + "]"
+                + "\n" +
+                "Upper Case Bonus: " + (this.upper * this.bonusUpper) + "[" + this.upper + " x " + this.bonusUpper + "]"
+                + "\n" +
+                "Number Bonus: " + (this.number * this.bonusNumber) + "[" + this.number + " x " + this.bonusNumber + "]"
+                + "\n" +
+                "Symbol Bonus: " + (this.symbol * this.bonusSymbol) + "[" + this.symbol + " x " + this.bonusSymbol + "]"
+                + "\n" +
+                "Combination Bonus: " + this.bonusCombo + "\n" +
+                "Lower case only penalty: " + this.bonusOnlyLower + "\n" +
+                "Numbers only penalty: " + this.bonusOnlyNumber + "\n" +
+                "Repeating pattern only penalty: " + this.bonusRepetition + "\n" +
+                "Total Score: " + this.score);
     }
 }
