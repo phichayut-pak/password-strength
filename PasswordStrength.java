@@ -14,6 +14,7 @@ public class PasswordStrength {
     private int excess = 0; // excess characters after subtracting with minPasswordLength
     private int uniqueChars = 0;
     private int commonWords = 0;
+    private boolean hasFoundBirthday = false;
 
     private int bonusExcess = 3;
     private int bonusUpper = 4;
@@ -25,6 +26,7 @@ public class PasswordStrength {
     private int bonusUniqueChars = 0;
     private int bonusRepetition = 0;
     private int bonusCommonWords = -5;
+    private int bonusBirthday = 0;
 
     public PasswordStrength(String password) {
         if (password.length() >= minPasswordLength) {
@@ -98,6 +100,8 @@ public class PasswordStrength {
         }
 
         this.commonWords = checkCommon(password);
+        this.hasFoundBirthday = checkBirthday(password);
+        this.bonusBirthday = this.hasFoundBirthday ? -10 : 0;
 
     }
 
@@ -161,31 +165,36 @@ public class PasswordStrength {
     }
 
     public boolean checkBirthday(String password) {
-        String currentString = "";
-        boolean isAllNumber = false;
-
+        // Loop through each character in the password
         for (int i = 0; i < password.length(); i++) {
-            if (inRange(password.charAt(i), 48, 57)) {
-                currentString = password.substring(i, i + 5);
-                System.out.println(currentString);
+            // Check if there are at least 6 characters remaining
+            if (i + 6 <= password.length()) {
+                String currentString = password.substring(i, i + 6);
+                boolean isAllNumber = true;
 
+                // Check if all characters in the current string are digits
                 for (int j = 0; j < currentString.length(); j++) {
-                    if (!inRange(password.charAt(i), 48, 57)) {
-                        System.out.println(password.charAt(i));
+                    if (!inRange(currentString.charAt(j), 48, 57)) {
+                        isAllNumber = false;
                         break;
                     }
+                }
 
-                    if (j == currentString.length() - 1) {
-                        isAllNumber = true;
+                // If all characters are digits, check if they form a valid date
+                if (isAllNumber) {
+
+                    int date = Integer.parseInt(currentString.substring(0, 2));
+                    int month = Integer.parseInt(currentString.substring(2, 4));
+                    int year = Integer.parseInt(currentString.substring(4));
+
+                    // Simple date validation
+                    if (date > 0 && date <= 31 && month >= 1 && month <= 12 && year >= 1 && year <= 99) {
+                        return true;
                     }
+
                 }
             }
-
-            if (isAllNumber) {
-                return true;
-            }
         }
-
         return false;
     }
 
@@ -200,7 +209,8 @@ public class PasswordStrength {
                 this.bonusOnlyNumber +
                 this.bonusRepetition +
                 this.bonusUniqueChars +
-                this.commonWords * this.bonusCommonWords;
+                this.commonWords * this.bonusCommonWords +
+                this.bonusBirthday;
     }
 
     public String toString() {
@@ -236,6 +246,7 @@ public class PasswordStrength {
                 "Repeating pattern only penalty: " + this.bonusRepetition + "\n" +
                 "Common words penalty: " + (this.commonWords * this.bonusCommonWords) + "[" + this.commonWords + " x "
                 + this.bonusCommonWords + "]" + "\n" +
+                "Birthday penalty: " + this.bonusBirthday + "\n" +
                 "Total Score: " + this.score);
     }
 }
