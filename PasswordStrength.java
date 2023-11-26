@@ -12,22 +12,23 @@ public class PasswordStrength {
     private int number = 0; // 0-9
     private int symbol = 0; // !,@,#,$,%,^,&,*,?,_,~
     private int excess = 0; // excess characters after subtracting with minPasswordLength
-    private int uniqueChars = 0;
-    private int commonWords = 0;
-    private boolean hasFoundBirthday = false;
+    private int uniqueChars = 0; // unique characters count
+    private int commonWords = 0; // common words count
+    private boolean hasFoundBirthday = false; // has found birthday
 
-    private int bonusExcess = 3;
-    private int bonusUpper = 4;
-    private int bonusNumber = 5;
-    private int bonusSymbol = 5;
-    private int bonusCombo = 0;
-    private int bonusOnlyLower = 0;
-    private int bonusOnlyNumber = 0;
-    private int bonusUniqueChars = 0;
-    private int bonusRepetition = 0;
-    private int bonusCommonWords = -5;
-    private int bonusBirthday = 0;
+    private int bonusExcess = 3; // score multiplier
+    private int bonusUpper = 4; // score multiplier
+    private int bonusNumber = 5; // score multiplier
+    private int bonusSymbol = 5; // score multiplier
+    private int bonusCombo = 0; // score multiplier
+    private int bonusOnlyLower = 0; // score multiplier
+    private int bonusOnlyNumber = 0; // score multiplier
+    private int bonusUniqueChars = 0; // score multiplier
+    private int bonusRepetition = 0; // score multiplier
+    private int bonusCommonWords = -5; // score multiplier
+    private int bonusBirthday = 0; // score multiplier
 
+    // Constructor
     public PasswordStrength(String password) {
         if (password.length() >= minPasswordLength) {
             this.baseScore = 50;
@@ -43,6 +44,7 @@ public class PasswordStrength {
         return (c >= min && c <= max);
     }
 
+    // analyze the string ( all the functions work here )
     private void analyzeString(String password) {
         for (int i = 0; i < password.length(); i++) {
 
@@ -128,6 +130,7 @@ public class PasswordStrength {
         return false;
     }
 
+    // check if the length of unique characters in a password
     public int checkUniqueChars(String password) {
         String lowerPassword = password.toLowerCase();
 
@@ -146,6 +149,7 @@ public class PasswordStrength {
 
     }
 
+    // check common words in a password
     public int checkCommon(String password) {
         File passList = new File("common_words.txt");
         int count = 0;
@@ -164,6 +168,7 @@ public class PasswordStrength {
         return count;
     }
 
+    // check if a password contains birthday
     public boolean checkBirthday(String password) {
         // Loop through each character in the password
         for (int i = 0; i < password.length(); i++) {
@@ -198,6 +203,7 @@ public class PasswordStrength {
         return false;
     }
 
+    // calculate the score
     private void calcComplexity() {
         this.score = this.baseScore +
                 this.excess * this.bonusExcess +
@@ -213,6 +219,7 @@ public class PasswordStrength {
                 this.bonusBirthday;
     }
 
+    // output to String
     public String toString() {
         String message = "";
 
